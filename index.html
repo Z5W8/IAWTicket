@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rally Ticket</title>
+<style>
+  :root {
+    --accent: #2a7;
+    --muted: #888;
+    --border: #8886;
+    --text-brown: #4a3b32;
+    --cream: #f4ebd9;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font: 16px/1.5 system-ui, -apple-system, sans-serif;
+    background: #111;
+  }
+
+  .page {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .page + .page { margin-top: 24px; }
+
+  .page img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .page-layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .stamp {
+    position: absolute;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+  .stamp.collected { cursor: pointer; }
+
+  .x-mark {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    animation: x-fade .25s ease-out;
+  }
+  .x-mark::before,
+  .x-mark::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 90%;
+    height: 14%;
+    min-height: 8px;
+    background: var(--x-color, #d46a8c);
+    border-radius: 999px;
+    box-shadow: 0 2px 8px #0006;
+  }
+  .x-mark::before { transform: translate(-50%, -50%) rotate(45deg); }
+  .x-mark::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+
+  @keyframes x-fade {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .hold-ring {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hold-ring.active { opacity: 1; }
+  .hold-ring svg { width: 100%; height: 100%; display: block; }
+  .hold-ring circle.track {
+    fill: none; stroke: #0003; stroke-width: 6;
+  }
+  .hold-ring circle.bar {
+    fill: none; stroke: var(--accent); stroke-width: 6;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+
+  .ui-btn {
+    background: var(--text-brown);
+    color: white;
+    border: none;
+    padding: 8px 12px; 
+    font-size: 14px;   
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+    z-index: 50;
+    white-space: nowrap; 
+  }
+
+  .top-btns {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 50;
+    display: flex;
+    gap: 8px;
+  }
+  
+  .new-ticket-btn { position: relative; }
+
+  .bottom-btns {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 50;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .ticket-code-btn {
+    cursor: text; 
+    padding: 2px 10px; 
+    font-size: 13px;
+    border-radius: 3px; 
+    letter-spacing: 1px;
+    background: var(--text-brown);
+    color: white;
+    position: relative;
+  }
+
+  .validate-btn {
+    background: #2a7;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .validate-btn.closing {
+    background: #c33;
+  }
+
+  .new-ticket-container { position: relative; }
+  .new-ticket-confirm {
+    position: absolute;
+    top: 32px; 
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
+    width: 220px;
+    text-align: center;
+    z-index: 100;
+  }
+  .new-ticket-confirm.show { display: block; }
+  .new-ticket-confirm p { margin: 0 0 10px 0; font-size: 13px; color: #333; }
+  .confirm-buttons { display: flex; gap: 8px; }
+  .confirm-buttons button {
+    flex: 1; padding: 6px; font-size: 12px;
+    border-radius: 4px; border: none; cursor: pointer; font-weight: bold;
+  }
+  .confirm-yes { background: #c33; color: white; }
+  .confirm-no { background: #eee; color: #333; }
+
+  /* VALIDATION SECTION */
+  .validate-section {
+    width: 100%; max-width: 600px; margin: 40px auto 60px;
+    background: var(--text-brown); color: var(--cream);
+    border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    font-family: monospace; overflow: hidden; display: none;
+  }
+  .validate-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,0.2); padding: 20px; border-bottom: 2px solid var(--cream);
+  }
+  .validate-header h2 { font-size: 20px; margin: 0; color: var(--cream); }
+  .validate-content { padding: 20px; }
+  .ticket-info {
+    font-size: 14px; margin-bottom: 25px; background: rgba(255, 255, 255, 0.1);
+    padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); word-break: break-all;
+  }
+  .timeline { position: relative; padding-left: 25px; border-left: 3px solid var(--cream); }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-item::before {
+    content: ""; position: absolute; left: -33px; top: 4px;
+    width: 13px; height: 13px; border-radius: 50%;
+    background: var(--cream); border: 3px solid var(--text-brown); box-shadow: 0 0 0 2px var(--cream);
+  }
+  .time-stamp { font-weight: bold; color: var(--cream); font-size: 15px; }
+  .booth-name { font-size: 16px; font-weight: bold; margin: 4px 0; color: #fff; }
+  .time-gap { font-size: 12px; color: #d1c7b8; font-style: italic; }
+  .cumulative { font-size: 12px; color: #aaa; margin-top: 2px; }
+  
+  .summary-box {
+    margin-top: 30px; padding-top: 15px; border-top: 2px dashed var(--cream);
+    font-weight: bold; font-size: 14px; color: var(--cream); text-align: center;
+    line-height: 1.8;
+  }
+  .summary-box span { font-size: 16px; color: #fff; }
+
+  .error-msg {
+    color: #ffcccc; background: rgba(0,0,0,0.2); padding: 15px;
+    border-radius: 8px; border: 1px solid #ffcccc; font-weight: bold;
+    text-align: center; display: none; line-height: 1.5;
+  }
+  
+  .verified-badge {
+    background: #2a7;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+  }
+
+  /* MODALS */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: #0008;
+    display: none; align-items: center; justify-content: center;
+    z-index: 300; padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: Canvas; color: CanvasText;
+    border-radius: 16px; padding: 28px; width: 100%; max-width: 400px;
+    box-shadow: 0 8px 40px #0006;
+  }
+  .modal h2 { margin: 0 0 8px; font-size: 20px; }
+  .modal p { margin: 0 0 16px; font-size: 15px; color: var(--muted); }
+  .modal input {
+    width: 100%; font: inherit; font-size: 20px; padding: 14px;
+    border: 2px solid var(--border); border-radius: 12px;
+    margin-bottom: 12px; text-align: center; letter-spacing: 3px;
+    background: transparent; color: inherit;
+  }
+  .modal input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button {
+    flex: 1; font: inherit; font-size: 16px; padding: 14px;
+    border-radius: 12px; border: 2px solid var(--border);
+    background: transparent; color: inherit; cursor: pointer;
+  }
+  .modal-actions button.primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .error { color: #c33; font-size: 15px; min-height: 22px; margin-bottom: 8px; }
+  .shake { animation: shake .3s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  @media print {
+    @page { margin: 0; }
+    html, body { background: white; }
+    .page { page-break-after: always; break-after: page; margin: 0; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .modal-backdrop, .hold-ring, .top-btns, .bottom-btns, .validate-section { display: none !important; }
+    .page img { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page" id="page1">
+  <img src="IAWT1.png" alt="Ticket front">
+  
+  <div class="top-btns">
+    <div class="new-ticket-container">
+      <button class="ui-btn new-ticket-btn" id="newTicketBtn">New Ticket | Tiket Baharu</button>
+      
+      <div class="new-ticket-confirm" id="newTicketConfirm">
+        <p id="confirmText">Are you sure you want a new ticket?</p>
+        <div class="confirm-buttons" id="confirmBtns">
+          <button class="confirm-yes" id="confirmYes">Yes</button>
+          <button class="confirm-no" id="confirmNo">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+  <img src="IAWT2.png" alt="Ticket back">
+  
+  <div class="bottom-btns">
+    <button class="ui-btn validate-btn" id="validateBtn">Validate</button>
+    <div class="ui-btn ticket-code-btn" id="ticketCodeBox"></div>
+  </div>
+
+  <div class="page-layer" id="overlay"></div>
+</div>
+
+<!-- INLINE VALIDATE SECTION -->
+<div class="validate-section" id="validateSection">
+  <div class="validate-header">
+    <h2>Ticket Verification</h2>
+  </div>
+  
+  <div class="validate-content">
+    <div class="error-msg" id="validateError"></div>
+    
+    <div id="validateSuccess" style="display: none;">
+      <div class="verified-badge">✓ VERIFIED</div>
+      <div class="ticket-info" id="validateInfo"></div>
+      <div class="timeline" id="timelineContainer"></div>
+      <div class="summary-box" id="summaryContainer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STAMP MODAL -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal" id="modalBox">
+    <h2 id="modalTitle">Enter code</h2>
+    <p id="modalSub">Ask booth staff for the code.</p>
+    <div class="error" id="modalError"></div>
+    <input id="codeInput" type="text" inputmode="text" autocomplete="off"
+           spellcheck="false" maxlength="16">
+    <div class="modal-actions">
+      <button id="cancelBtn">Cancel</button>
+      <button id="
