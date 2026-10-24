@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rally Ticket</title>
+<title>IAW 2026 Digital Booth Rally Ticket</title>
 <style>
   :root {
     --accent: #2a7;
@@ -19,12 +19,19 @@
     background: #111;
   }
 
+  .text-grey {
+    color: #3e3e3e;
+    font-size: 0.85em;
+    font-weight: normal;
+  }
+
   .page {
     position: relative;
     display: block;
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
+    container-type: inline-size;
   }
   .page + .page { margin-top: 24px; }
 
@@ -37,6 +44,25 @@
   .page-layer {
     position: absolute;
     inset: 0;
+  }
+
+  .img-wrap {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  .img-wrap > img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .img-wrap .page-layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .print-id-strip {
+    display: none;
   }
 
   .stamp {
@@ -55,6 +81,7 @@
     pointer-events: none;
     animation: x-fade .25s ease-out;
   }
+
   .x-mark::before,
   .x-mark::after {
     content: "";
@@ -63,12 +90,27 @@
     width: 90%;
     height: 14%;
     min-height: 8px;
-    background: var(--x-color, #d46a8c);
+    background-color: var(--x-color, #d46a8c);
     border-radius: 999px;
     box-shadow: 0 2px 8px #0006;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .x-mark::before { transform: translate(-50%, -50%) rotate(45deg); }
   .x-mark::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+
+  .x-mark.x-mark--svg::before,
+  .x-mark.x-mark--svg::after {
+    content: none;
+    display: none;
+  }
+  .x-mark.x-mark--svg svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
 
   @keyframes x-fade {
     0%   { opacity: 0; }
@@ -97,48 +139,53 @@
     transform-origin: 50% 50%;
   }
 
+  .page1-btns-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    right: 10px;
+    transform: translateY(-50%);
+    z-index: 50;
+    display: flex;
+    gap: 2cqw;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .left-btns {
+    display: flex;
+    gap: 2cqw;
+    align-items: center;
+  }
+
   .ui-btn {
     background: var(--text-brown);
     color: white;
     border: none;
-    padding: 8px 12px; 
-    font-size: 14px;   
-    border-radius: 6px;
+    padding: 1.5cqw 3cqw; 
+    font-size: 2.5cqw;   
+    border-radius: 1.5cqw;
     cursor: pointer;
     font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 0.2cqw 0.5cqw rgba(0,0,0,0.2);
     font-family: Arial, sans-serif;
     z-index: 50;
     white-space: nowrap; 
+    line-height: 1.2;
+    text-align: center;
   }
 
-  .top-btns {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 50;
-    display: flex;
-    gap: 8px;
-  }
-  
-  .new-ticket-btn { position: relative; }
-
-  .bottom-btns {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    z-index: 50;
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  .new-ticket-btn { 
+    position: relative; 
+    background: #c33;
   }
 
   .ticket-code-btn {
     cursor: text; 
-    padding: 2px 10px; 
-    font-size: 13px;
-    border-radius: 3px; 
-    letter-spacing: 1px;
+    padding: 1.5cqw 3cqw; 
+    font-size: 2.5cqw;
+    border-radius: 1cqw; 
+    letter-spacing: 0.2cqw;
     background: var(--text-brown);
     color: white;
     position: relative;
@@ -155,31 +202,32 @@
   }
 
   .new-ticket-container { position: relative; }
+
   .new-ticket-confirm {
     position: absolute;
-    top: 32px; 
-    right: 0;
+    top: 120%; 
+    left: 0; 
     background: white;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: 0.2cqw solid #ccc;
+    padding: 2cqw;
+    border-radius: 2cqw;
+    box-shadow: 0 1cqw 3cqw rgba(0,0,0,0.15);
     display: none;
-    width: 220px;
+    width: 45cqw;
     text-align: center;
     z-index: 100;
   }
   .new-ticket-confirm.show { display: block; }
-  .new-ticket-confirm p { margin: 0 0 10px 0; font-size: 13px; color: #333; }
-  .confirm-buttons { display: flex; gap: 8px; }
+  .new-ticket-confirm p { margin: 0 0 2cqw 0; font-size: 2.2cqw; color: #333; line-height: 1.4; }
+  .confirm-buttons { display: flex; gap: 1.5cqw; }
   .confirm-buttons button {
-    flex: 1; padding: 6px; font-size: 12px;
-    border-radius: 4px; border: none; cursor: pointer; font-weight: bold;
+    flex: 1; padding: 1.5cqw; font-size: 2.2cqw;
+    border-radius: 1cqw; border: none; cursor: pointer; font-weight: bold;
+    line-height: 1.2;
   }
   .confirm-yes { background: #c33; color: white; }
   .confirm-no { background: #eee; color: #333; }
 
-  /* VALIDATION SECTION */
   .validate-section {
     width: 100%; max-width: 600px; margin: 40px auto 60px;
     background: var(--text-brown); color: var(--cream);
@@ -207,7 +255,7 @@
   .booth-name { font-size: 16px; font-weight: bold; margin: 4px 0; color: #fff; }
   .time-gap { font-size: 12px; color: #d1c7b8; font-style: italic; }
   .cumulative { font-size: 12px; color: #aaa; margin-top: 2px; }
-  
+
   .summary-box {
     margin-top: 30px; padding-top: 15px; border-top: 2px dashed var(--cream);
     font-weight: bold; font-size: 14px; color: var(--cream); text-align: center;
@@ -220,7 +268,7 @@
     border-radius: 8px; border: 1px solid #ffcccc; font-weight: bold;
     text-align: center; display: none; line-height: 1.5;
   }
-  
+
   .verified-badge {
     background: #2a7;
     color: white;
@@ -233,7 +281,6 @@
     font-family: Arial, sans-serif;
   }
 
-  /* MODALS */
   .modal-backdrop {
     position: fixed; inset: 0; background: #0008;
     display: none; align-items: center; justify-content: center;
@@ -245,8 +292,8 @@
     border-radius: 16px; padding: 28px; width: 100%; max-width: 400px;
     box-shadow: 0 8px 40px #0006;
   }
-  .modal h2 { margin: 0 0 8px; font-size: 20px; }
-  .modal p { margin: 0 0 16px; font-size: 15px; color: var(--muted); }
+  .modal h2 { margin: 0 0 8px; font-size: 20px; line-height: 1.3; }
+  .modal p { margin: 0 0 16px; font-size: 15px; color: var(--muted); line-height: 1.4; }
   .modal input {
     width: 100%; font: inherit; font-size: 20px; padding: 14px;
     border: 2px solid var(--border); border-radius: 12px;
@@ -271,58 +318,152 @@
     75% { transform: translateX(10px); }
   }
 
+  .x-mark::before,
+  .x-mark::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   @media print {
-    @page { margin: 0; }
-    html, body { background: white; }
-    .page { page-break-after: always; break-after: page; margin: 0; }
-    .page:last-child { page-break-after: auto; break-after: auto; }
-    .modal-backdrop, .hold-ring, .top-btns, .bottom-btns, .validate-section { display: none !important; }
-    .page img { width: 100%; }
+    @page {
+      size: 14.8cm 21.3cm;
+      margin: 0;
+    }
+
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      width: 14.8cm;
+      height: 21.3cm;
+    }
+
+    #page1,
+    .page1-btns-wrapper,
+    .modal-backdrop,
+    .hold-ring,
+    .validate-section {
+      display: none !important;
+    }
+
+    #page23 {
+      position: relative;
+      display: block;
+      width: 14.8cm !important;
+      height: 21.3cm !important;
+      max-width: 14.8cm !important;
+      max-height: 21.3cm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden;
+      page-break-after: auto !important;
+      break-after: auto !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      container-type: normal;
+    }
+
+    #page23 > img {
+      display: block;
+      width: 14.8cm !important;
+      height: 10.5cm !important;
+      max-width: 14.8cm !important;
+      max-height: 10.5cm !important;
+      margin: 0;
+      padding: 0;
+      object-fit: fill;
+    }
+
+    .print-id-strip {
+      display: block;
+      width: 14.8cm;
+      height: 3mm;
+      line-height: 3mm;
+      background: white;
+      text-align: center;
+      font: 6pt/3mm Arial, sans-serif;
+      color: #444;
+      letter-spacing: 0.5pt;
+    }
+
+    .img-wrap {
+      position: relative;
+      display: block;
+      width: 14.8cm !important;
+      height: 10.5cm !important;
+      overflow: hidden;
+    }
+    .img-wrap > img {
+      display: block;
+      width: 14.8cm !important;
+      height: 10.5cm !important;
+      max-width: 14.8cm !important;
+      max-height: 10.5cm !important;
+      margin: 0;
+      padding: 0;
+      object-fit: fill;
+    }
+    .img-wrap .page-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 14.8cm;
+      height: 10.5cm;
+    }
+
+    .x-mark { animation: none !important; }
+    .x-mark::before,
+    .x-mark::after {
+      box-shadow: none !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
   }
 </style>
 </head>
 <body>
 
-<!-- PAGE 1 -->
 <div class="page" id="page1">
-  <img src="IAWT1.png" alt="Ticket front">
-  
-  <div class="top-btns">
-    <div class="new-ticket-container">
-      <button class="ui-btn new-ticket-btn" id="newTicketBtn">New Ticket | Tiket Baharu</button>
-      
-      <div class="new-ticket-confirm" id="newTicketConfirm">
-        <p id="confirmText">Are you sure you want a new ticket?</p>
-        <div class="confirm-buttons" id="confirmBtns">
-          <button class="confirm-yes" id="confirmYes">Yes</button>
-          <button class="confirm-no" id="confirmNo">No</button>
+  <img src="IAWOpt.png" alt="Ticket cover">
+
+  <div class="page1-btns-wrapper">
+    <div class="left-btns">
+      <div class="new-ticket-container">
+        <button class="ui-btn new-ticket-btn" id="newTicketBtn">New Ticket<br>Tiket Baharu</button>
+
+        <div class="new-ticket-confirm" id="newTicketConfirm">
+          <p id="confirmText">Are you sure you want a new ticket?</p>
+          <div class="confirm-buttons" id="confirmBtns">
+            <button class="confirm-yes" id="confirmYes">Yes</button>
+            <button class="confirm-no" id="confirmNo">No</button>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
-<!-- PAGE 2 -->
-<div class="page" id="page2">
-  <img src="IAWT2.png" alt="Ticket back">
-  
-  <div class="bottom-btns">
-    <button class="ui-btn validate-btn" id="validateBtn">Validate</button>
+      <button class="ui-btn validate-btn" id="validateBtn">Validate<br>Sahkan</button>
+      <button class="ui-btn" id="savePdfBtn" style="background: rgb(64, 101, 5);">Save PDF<br>Simpan PDF</button>
+    </div>
+
     <div class="ui-btn ticket-code-btn" id="ticketCodeBox"></div>
   </div>
-
-  <div class="page-layer" id="overlay"></div>
 </div>
 
-<!-- INLINE VALIDATE SECTION -->
+<div class="page" id="page23" data-ticket="">
+  <img src="IAWT1.png" alt="Ticket front">
+  <div class="print-id-strip"><span class="print-id-text"></span></div>
+  <div class="img-wrap">
+    <img src="IAWT2.png" alt="Ticket back">
+    <div class="page-layer" id="overlay"></div>
+  </div>
+</div>
+
 <div class="validate-section" id="validateSection">
   <div class="validate-header">
     <h2>Ticket Verification</h2>
   </div>
-  
+
   <div class="validate-content">
     <div class="error-msg" id="validateError"></div>
-    
+
     <div id="validateSuccess" style="display: none;">
       <div class="verified-badge">✓ VERIFIED</div>
       <div class="ticket-info" id="validateInfo"></div>
@@ -332,11 +473,12 @@
   </div>
 </div>
 
-<!-- STAMP MODAL -->
 <div class="modal-backdrop" id="modal">
   <div class="modal" id="modalBox">
-    <h2 id="modalTitle">Enter code</h2>
-    <p id="modalSub">Ask booth staff for the code.</p>
+    <h2 id="modalTitle">Enter codes / Masukkan kod</h2>
+    <p id="modalSub">
+      <span class="text-grey">Please pass your device to our booth committee to enter the stamp code.<br>Sila serahkan peranti anda kepada AJK booth untuk memasukkan kod cap.</span>
+    </p>
     <div class="error" id="modalError"></div>
     <input id="codeInput" type="text" inputmode="text" autocomplete="off"
            spellcheck="false" maxlength="16">
@@ -347,11 +489,12 @@
   </div>
 </div>
 
-<!-- VALIDATE ACCESS MODAL -->
 <div class="modal-backdrop" id="validateAccessModal">
   <div class="modal" id="validateAccessBox">
-    <h2>Staff Access</h2>
-    <p>Enter staff code to view timeline.</p>
+    <h2>Committee Access I Akses AJK</h2>
+    <p>
+      <span class="text-grey">Please enter your code to verify this ticket.<br>Sila masukkan kod anda untuk mengesahkan tiket ini.</span>
+    </p>
     <div class="error" id="validateAccessError"></div>
     <input id="validateAccessInput" type="text" inputmode="numeric" autocomplete="off"
            spellcheck="false" maxlength="16">
@@ -362,8 +505,6 @@
   </div>
 </div>
 
-<!-- LINK TO OBFUSCATED JS -->
 <script src="app.js"></script>
-
 </body>
 </html>
